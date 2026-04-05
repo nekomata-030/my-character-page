@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>角色介紹 - Character Gallery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .main-display {
+            display: flex;
+            padding: 40px;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .character-image {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 500px;
+            position: relative;
+        }
+
+        .character-image img {
+            max-width: 100%;
+            max-height: 600px;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.2));
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .character-image img.fade-out {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        .character-info {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .character-info h2 {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 10px;
+            transition: opacity 0.3s ease;
+        }
+
+        .character-info .role {
+            font-size: 1.2em;
+            color: #764ba2;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .character-info .description {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 20px;
+            transition: opacity 0.3s ease;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .character-selector {
+            padding: 30px 40px 40px;
+            background: #f8f9fa;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .selector-title {
+            text-align: center;
+            font-size: 1.3em;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .character-thumbnails {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .thumbnail {
+            width: 120px;
+            height: 120px;
+            border-radius: 15px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 4px solid transparent;
+            transition: all 0.3s ease;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .thumbnail:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .thumbnail.active {
+            border-color: #667eea;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+            transform: scale(1.1);
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .thumbnail-name {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 0.9em;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .thumbnail-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .main-display {
+                flex-direction: column;
+                padding: 20px;
+            }
+
+            .character-image {
+                min-height: 300px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .thumbnail {
+                width: 90px;
+                height: 90px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⭐ 角色介紹 ⭐</h1>
+        </div>
+
+        <div class="main-display">
+            <div class="character-image">
+                <img id="mainCharacterImage" src="https://via.placeholder.com/400x600/667eea/ffffff?text=角色立繪1" alt="角色立繪">
+            </div>
+
+            <div class="character-info">
+                <h2 id="characterName">艾莉亞</h2>
+                <div class="role" id="characterRole">主角 - 魔法劍士</div>
+                <div class="description" id="characterDescription">
+                    一位擁有強大魔法力量的年輕劍士，在追尋真理的旅途中不斷成長。她的劍術與魔法完美結合，是隊伍中不可或缺的核心戰力。
+                </div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-label">年齡</div>
+                        <div class="stat-value" id="charAge">18歲</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">身高</div>
+                        <div class="stat-value" id="charHeight">165cm</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">武器</div>
+                        <div class="stat-value" id="charWeapon">魔導劍</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">屬性</div>
+                        <div class="stat-value" id="charElement">光 / 雷</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="character-selector">
+            <div class="selector-title">點擊選擇角色</div>
+            <div class="character-thumbnails" id="thumbnailContainer">
+                <!-- 縮圖會由 JavaScript 動態生成 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 角色資料庫
+        const characters = [
+            {
+                id: 1,
+                name: '艾莉亞',
+                role: '主角 - 魔法劍士',
+                description: '一位擁有強大魔法力量的年輕劍士，在追尋真理的旅途中不斷成長。她的劍術與魔法完美結合，是隊伍中不可或缺的核心戰力。',
+                image: 'https://via.placeholder.com/400x600/667eea/ffffff?text=角色立繪1',
+                thumbnail: 'https://via.placeholder.com/120x120/667eea/ffffff?text=Q版1',
+                age: '18歲',
+                height: '165cm',
+                weapon: '魔導劍',
+                element: '光 / 雷'
+            },
+            {
+                id: 2,
+                name: '凱文',
+                role: '夥伴 - 狂戰士',
+                description: '來自北方部落的強壯戰士，以驚人的力量和不屈的意志聞名。雖然外表粗獷，但內心善良，是最值得信賴的夥伴。',
+                image: 'https://via.placeholder.com/400x600/e74c3c/ffffff?text=角色立繪2',
+                thumbnail: 'https://via.placeholder.com/120x120/e74c3c/ffffff?text=Q版2',
+                age: '25歲',
+                height: '188cm',
+                weapon: '雙手巨斧',
+                element: '火 / 土'
+            },
+            {
+                id: 3,
+                name: '莉娜',
+                role: '支援 - 治癒術士',
+                description: '溫柔體貼的治癒者，擁有罕見的神聖魔法天賦。她的笑容能撫慰受傷的心靈，治癒術更是無人能及。',
+                image: 'https://via.placeholder.com/400x600/2ecc71/ffffff?text=角色立繪3',
+                thumbnail: 'https://via.placeholder.com/120x120/2ecc71/ffffff?text=Q版3',
+                age: '20歲',
+                height: '158cm',
+                weapon: '神聖法杖',
+                element: '聖 / 水'
+            },
+            {
+                id: 4,
+                name: '暗影',
+                role: '刺客 - 暗殺者',
+                description: '神秘的暗夜行者，過去不為人知。擅長潛行和致命一擊，是隊伍中的秘密武器。儘管沉默寡言，但對同伴絕對忠誠。',
+                image: 'https://via.placeholder.com/400x600/9b59b6/ffffff?text=角色立繪4',
+                thumbnail: 'https://via.placeholder.com/120x120/9b59b6/ffffff?text=Q版4',
+                age: '？？',
+                height: '172cm',
+                weapon: '雙刃匕首',
+                element: '暗 / 風'
+            }
+        ];
+
+        // 生成縮圖
+        function generateThumbnails() {
+            const container = document.getElementById('thumbnailContainer');
+            container.innerHTML = '';
+            
+            characters.forEach((char, index) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'thumbnail-wrapper';
+                
+                const thumbnail = document.createElement('div');
+                thumbnail.className = 'thumbnail' + (index === 0 ? ' active' : '');
+                thumbnail.onclick = () => switchCharacter(char.id);
+                
+                const img = document.createElement('img');
+                img.src = char.thumbnail;
+                img.alt = char.name;
+                
+                const name = document.createElement('div');
+                name.className = 'thumbnail-name';
+                name.textContent = char.name;
+                
+                thumbnail.appendChild(img);
+                wrapper.appendChild(thumbnail);
+                wrapper.appendChild(name);
+                container.appendChild(wrapper);
+            });
+        }
+
+        // 切換角色
+        function switchCharacter(characterId) {
+            const character = characters.find(c => c.id === characterId);
+            if (!character) return;
+
+            // 圖片淡出效果
+            const mainImage = document.getElementById('mainCharacterImage');
+            mainImage.classList.add('fade-out');
+
+            // 更新活動縮圖
+            document.querySelectorAll('.thumbnail').forEach((thumb, index) => {
+                thumb.classList.toggle('active', characters[index].id === characterId);
+            });
+
+            // 等待淡出動畫完成後更新內容
+            setTimeout(() => {
+                // 更新所有資訊
+                document.getElementById('characterName').textContent = character.name;
+                document.getElementById('characterRole').textContent = character.role;
+                document.getElementById('characterDescription').textContent = character.description;
+                document.getElementById('charAge').textContent = character.age;
+                document.getElementById('charHeight').textContent = character.height;
+                document.getElementById('charWeapon').textContent = character.weapon;
+                document.getElementById('charElement').textContent = character.element;
+                
+                // 更新圖片並淡入
+                mainImage.src = character.image;
+                mainImage.classList.remove('fade-out');
+            }, 300);
+        }
+
+        // 初始化
+        generateThumbnails();
+    </script>
+</body>
+</html>
