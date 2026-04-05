@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>角色介紹 - 艾莉亞</title>
+    <title>TRPG 聊天記錄備份</title>
     <style>
         * {
             margin: 0;
@@ -12,383 +12,520 @@
         }
 
         body {
-            font-family: 'Microsoft JhengHei', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            font-family: 'Microsoft JhengHei', 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
         }
 
+        /* 頂部導航欄 */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #5865F2;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #666;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #5865F2;
+        }
+
+        /* 主要容器 */
         .container {
             max-width: 1200px;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
+            margin: 2rem auto;
+            padding: 0 1rem;
         }
 
-        .header {
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            padding: 30px;
-            text-align: center;
-            color: white;
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        .main-display {
-            display: flex;
-            padding: 40px;
-            gap: 40px;
-            align-items: flex-start;
-        }
-
-        .character-image-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .character-image {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 500px;
-            position: relative;
-            margin-bottom: 30px;
-        }
-
-        .character-image img {
-            max-width: 100%;
-            max-height: 600px;
-            object-fit: contain;
-            filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.2));
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-
-        .character-image img.fade-out {
-            opacity: 0;
-            transform: scale(0.95);
-        }
-
-        .pose-selector {
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .pose-title {
-            text-align: center;
-            font-size: 1.1em;
-            color: #667eea;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-
-        .pose-buttons {
+        /* 側邊欄 */
+        .layout {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-            gap: 12px;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
         }
 
-        .pose-thumbnail {
-            aspect-ratio: 1;
-            border-radius: 12px;
-            overflow: hidden;
-            cursor: pointer;
-            border: 3px solid transparent;
-            transition: all 0.3s ease;
+        .sidebar {
             background: white;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            position: relative;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            height: fit-content;
+            position: sticky;
+            top: 80px;
         }
 
-        .pose-thumbnail:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        .sidebar h3 {
+            margin-bottom: 1rem;
+            color: #5865F2;
+            font-size: 1.1rem;
         }
 
-        .pose-thumbnail.active {
-            border-color: #667eea;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
-            transform: scale(1.08);
+        .session-list {
+            list-style: none;
         }
 
-        .pose-thumbnail.active::after {
-            content: '✓';
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: #667eea;
+        .session-item {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .session-item:hover {
+            background: #f0f0f0;
+        }
+
+        .session-item.active {
+            background: #e8ecff;
+            border-left-color: #5865F2;
+        }
+
+        .session-date {
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 0.25rem;
+        }
+
+        /* 聊天記錄區 */
+        .chat-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #5865F2 0%, #7289DA 100%);
             color: white;
-            width: 24px;
-            height: 24px;
+            padding: 1.5rem;
+        }
+
+        .chat-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .chat-meta {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .chat-messages {
+            padding: 2rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        /* 訊息樣式 */
+        .message {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             align-items: center;
             justify-content: center;
+            color: white;
             font-weight: bold;
-            font-size: 14px;
+            flex-shrink: 0;
         }
 
-        .pose-thumbnail img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .pose-label {
-            text-align: center;
-            margin-top: 5px;
-            font-size: 0.85em;
-            color: #666;
-            font-weight: 500;
-        }
-
-        .pose-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .character-info {
+        .message-content {
             flex: 1;
-            padding: 20px;
         }
 
-        .character-info h2 {
-            font-size: 2.5em;
-            color: #667eea;
-            margin-bottom: 10px;
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
         }
 
-        .character-info .role {
-            font-size: 1.2em;
-            color: #764ba2;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-
-        .character-info .description {
-            font-size: 1.1em;
-            line-height: 1.8;
-            color: #555;
-            margin-bottom: 20px;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .stat-item {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            padding: 15px;
-            border-radius: 10px;
-            border-left: 4px solid #667eea;
-        }
-
-        .stat-label {
-            font-size: 0.9em;
-            color: #888;
-            margin-bottom: 5px;
-        }
-
-        .stat-value {
-            font-size: 1.2em;
+        .username {
             font-weight: bold;
             color: #333;
         }
 
+        .timestamp {
+            font-size: 0.75rem;
+            color: #999;
+        }
+
+        .message-text {
+            line-height: 1.6;
+            color: #555;
+        }
+
+        /* 系統訊息 */
+        .message.system {
+            justify-content: center;
+        }
+
+        .message.system .message-content {
+            background: #f0f0f0;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* 骰子訊息 */
+        .dice-result {
+            background: #fff4e6;
+            border-left: 4px solid #ff9800;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* 角色卡片 */
+        .character-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+        }
+
+        .character-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .character-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        /* 搜尋框 */
+        .search-box {
+            margin-bottom: 1.5rem;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #5865F2;
+        }
+
+        /* 響應式設計 */
         @media (max-width: 968px) {
-            .main-display {
-                flex-direction: column;
-                padding: 20px;
-            }
-
-            .character-image {
-                min-height: 300px;
-            }
-
-            .header h1 {
-                font-size: 1.8em;
-            }
-
-            .stats {
+            .layout {
                 grid-template-columns: 1fr;
             }
+
+            .sidebar {
+                position: static;
+            }
+        }
+
+        /* 載入動畫 */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #999;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>⭐ 角色介紹 ⭐</h1>
+    <!-- 導航欄 -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">🎲 TRPG Log Backup</div>
+            <div class="nav-links">
+                <a href="#home">首頁</a>
+                <a href="#sessions">記錄列表</a>
+                <a href="#about">關於</a>
+            </div>
         </div>
+    </nav>
 
-        <div class="main-display">
-            <!-- 左側：立繪 + 姿勢選擇器 -->
-            <div class="character-image-section">
-                <div class="character-image">
-                    <img id="mainCharacterImage" src="https://via.placeholder.com/400x600/667eea/ffffff?text=預設立繪" alt="角色立繪">
+    <!-- 主要內容 -->
+    <div class="container">
+        <div class="layout">
+            <!-- 側邊欄 -->
+            <aside class="sidebar">
+                <h3>📚 遊戲記錄</h3>
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="搜尋記錄...">
                 </div>
+                <ul class="session-list" id="sessionList">
+                    <!-- 由 JavaScript 動態生成 -->
+                </ul>
+            </aside>
 
-                <div class="pose-selector">
-                    <div class="pose-title">💫 選擇立繪姿勢</div>
-                    <div class="pose-buttons" id="poseButtons">
-                        <!-- 姿勢按鈕會由 JavaScript 動態生成 -->
-                    </div>
+            <!-- 聊天記錄 -->
+            <main class="chat-container">
+                <div class="chat-header">
+                    <h2 id="sessionTitle">載入中...</h2>
+                    <div class="chat-meta" id="sessionMeta">請選擇一個遊戲記錄</div>
                 </div>
-            </div>
-
-            <!-- 右側：角色資訊（固定不變） -->
-            <div class="character-info">
-                <h2>艾莉亞</h2>
-                <div class="role">主角 - 魔法劍士</div>
-                <div class="description">
-                    一位擁有強大魔法力量的年輕劍士，在追尋真理的旅途中不斷成長。她的劍術與魔法完美結合，是隊伍中不可或缺的核心戰力。
-                    <br><br>
-                    性格開朗活潑，對朋友十分忠誠。雖然年紀輕輕，但在戰鬥中展現出驚人的冷靜和判斷力。她的目標是成為最強的魔法劍士，守護重要的人。
+                <div class="chat-messages" id="chatMessages">
+                    <div class="loading">載入聊天記錄中</div>
                 </div>
-
-                <div class="stats">
-                    <div class="stat-item">
-                        <div class="stat-label">年齡</div>
-                        <div class="stat-value">18歲</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-label">身高</div>
-                        <div class="stat-value">165cm</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-label">武器</div>
-                        <div class="stat-value">魔導劍</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-label">屬性</div>
-                        <div class="stat-value">光 / 雷</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-label">聲優</div>
-                        <div class="stat-value">花澤香菜</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-label">生日</div>
-                        <div class="stat-value">3月15日</div>
-                    </div>
-                </div>
-            </div>
+            </main>
         </div>
     </div>
 
     <script>
-        // 定義角色的不同立繪姿勢
-        const characterPoses = [
+        // 範例資料：遊戲記錄列表
+        const sessions = [
             {
                 id: 1,
-                name: '預設',
-                label: '預設姿勢',
-                fullImage: 'https://via.placeholder.com/400x600/667eea/ffffff?text=預設立繪',
-                thumbnail: 'https://via.placeholder.com/100x100/667eea/ffffff?text=預設'
+                title: '克蘇魯的呼喚 - 第一章',
+                date: '2024-01-15',
+                participants: ['調查員A', '調查員B', '守密人'],
+                messages: [
+                    {
+                        type: 'system',
+                        text: '遊戲開始 - 克蘇魯的呼喚'
+                    },
+                    {
+                        type: 'message',
+                        user: '守密人',
+                        avatar: 'GM',
+                        time: '20:00',
+                        text: '夜幕降臨，你們來到了這座古老的宅邸前。陰森的氣息從破舊的大門中滲透出來...'
+                    },
+                    {
+                        type: 'message',
+                        user: '調查員A',
+                        avatar: 'A',
+                        time: '20:01',
+                        text: '我想要偵查這個大門，看看有沒有什麼異常。',
+                        dice: '偵查檢定：1D100 = 45 / 65 → 成功'
+                    },
+                    {
+                        type: 'message',
+                        user: '守密人',
+                        avatar: 'GM',
+                        time: '20:02',
+                        text: '你注意到門把上有新鮮的抓痕，似乎有什麼東西剛剛從這裡經過...'
+                    },
+                    {
+                        type: 'message',
+                        user: '調查員B',
+                        avatar: 'B',
+                        time: '20:03',
+                        text: '這看起來不太妙，我們要進去嗎？',
+                        character: {
+                            name: '艾莉絲·懷特',
+                            hp: '12/12',
+                            san: '65/80',
+                            mp: '10/10'
+                        }
+                    }
+                ]
             },
             {
                 id: 2,
-                name: '戰鬥',
-                label: '戰鬥姿態',
-                fullImage: 'https://via.placeholder.com/400x600/e74c3c/ffffff?text=戰鬥立繪',
-                thumbnail: 'https://via.placeholder.com/100x100/e74c3c/ffffff?text=戰鬥'
+                title: '龍與地下城 - 地城探險',
+                date: '2024-02-01',
+                participants: ['戰士', '法師', '盜賊', 'DM'],
+                messages: [
+                    {
+                        type: 'system',
+                        text: '冒險開始 - 失落的地城'
+                    },
+                    {
+                        type: 'message',
+                        user: 'DM',
+                        avatar: 'DM',
+                        time: '19:00',
+                        text: '你們站在地城的入口處，黑暗的走廊向前延伸，不知通往何處...'
+                    },
+                    {
+                        type: 'message',
+                        user: '戰士',
+                        avatar: 'W',
+                        time: '19:01',
+                        text: '我點燃火把，走在最前面。',
+                        dice: '先攻檢定：1D20+2 = 18'
+                    }
+                ]
             },
             {
                 id: 3,
-                name: '微笑',
-                label: '微笑表情',
-                fullImage: 'https://via.placeholder.com/400x600/f39c12/ffffff?text=微笑立繪',
-                thumbnail: 'https://via.placeholder.com/100x100/f39c12/ffffff?text=微笑'
-            },
-            {
-                id: 4,
-                name: '認真',
-                label: '認真模式',
-                fullImage: 'https://via.placeholder.com/400x600/9b59b6/ffffff?text=認真立繪',
-                thumbnail: 'https://via.placeholder.com/100x100/9b59b6/ffffff?text=認真'
-            },
-            {
-                id: 5,
-                name: '受傷',
-                label: '受傷狀態',
-                fullImage: 'https://via.placeholder.com/400x600/95a5a6/ffffff?text=受傷立繪',
-                thumbnail: 'https://via.placeholder.com/100x100/95a5a6/ffffff?text=受傷'
-            },
-            {
-                id: 6,
-                name: '勝利',
-                label: '勝利姿勢',
-                fullImage: 'https://via.placeholder.com/400x600/2ecc71/ffffff?text=勝利立繪',
-                thumbnail: 'https://via.placeholder.com/100x100/2ecc71/ffffff?text=勝利'
+                title: '克蘇魯的呼喚 - 第二章',
+                date: '2024-02-10',
+                participants: ['調查員A', '調查員C', '守密人'],
+                messages: [
+                    {
+                        type: 'system',
+                        text: '第二次聚會 - 深入調查'
+                    },
+                    {
+                        type: 'message',
+                        user: '守密人',
+                        avatar: 'GM',
+                        time: '20:30',
+                        text: '經過上次的事件後，你們決定前往圖書館尋找更多線索...'
+                    }
+                ]
             }
         ];
 
-        // 生成姿勢選擇按鈕
-        function generatePoseButtons() {
-            const container = document.getElementById('poseButtons');
+        let currentSession = null;
+
+        // 生成側邊欄列表
+        function renderSessionList(filter = '') {
+            const sessionList = document.getElementById('sessionList');
+            sessionList.innerHTML = '';
+
+            const filtered = sessions.filter(s => 
+                s.title.toLowerCase().includes(filter.toLowerCase())
+            );
+
+            filtered.forEach((session, index) => {
+                const li = document.createElement('li');
+                li.className = 'session-item' + (index === 0 && !currentSession ? ' active' : '');
+                li.innerHTML = `
+                    <div>${session.title}</div>
+                    <div class="session-date">${session.date} · ${session.participants.length} 人</div>
+                `;
+                li.onclick = () => loadSession(session.id);
+                sessionList.appendChild(li);
+            });
+        }
+
+        // 載入聊天記錄
+        function loadSession(sessionId) {
+            const session = sessions.find(s => s.id === sessionId);
+            if (!session) return;
+
+            currentSession = session;
+
+            // 更新標題
+            document.getElementById('sessionTitle').textContent = session.title;
+            document.getElementById('sessionMeta').textContent = 
+                `${session.date} · 參與者：${session.participants.join(', ')}`;
+
+            // 更新側邊欄選中狀態
+            document.querySelectorAll('.session-item').forEach((item, index) => {
+                item.classList.toggle('active', sessions[index].id === sessionId);
+            });
+
+            // 渲染訊息
+            renderMessages(session.messages);
+        }
+
+        // 渲染訊息
+        function renderMessages(messages) {
+            const container = document.getElementById('chatMessages');
             container.innerHTML = '';
-            
-            characterPoses.forEach((pose, index) => {
-                const poseItem = document.createElement('div');
-                poseItem.className = 'pose-item';
+
+            messages.forEach(msg => {
+                const messageDiv = document.createElement('div');
                 
-                const thumbnail = document.createElement('div');
-                thumbnail.className = 'pose-thumbnail' + (index === 0 ? ' active' : '');
-                thumbnail.onclick = () => switchPose(pose.id);
+                if (msg.type === 'system') {
+                    messageDiv.className = 'message system';
+                    messageDiv.innerHTML = `
+                        <div class="message-content">${msg.text}</div>
+                    `;
+                } else {
+                    messageDiv.className = 'message';
+                    messageDiv.innerHTML = `
+                        <div class="avatar">${msg.avatar}</div>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="username">${msg.user}</span>
+                                <span class="timestamp">${msg.time}</span>
+                            </div>
+                            <div class="message-text">${msg.text}</div>
+                            ${msg.dice ? `<div class="dice-result">🎲 ${msg.dice}</div>` : ''}
+                            ${msg.character ? `
+                                <div class="character-card">
+                                    <div class="character-name">${msg.character.name}</div>
+                                    <div class="character-stats">
+                                        <div>HP: ${msg.character.hp}</div>
+                                        <div>SAN: ${msg.character.san}</div>
+                                        <div>MP: ${msg.character.mp}</div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }
                 
-                const img = document.createElement('img');
-                img.src = pose.thumbnail;
-                img.alt = pose.label;
-                
-                const label = document.createElement('div');
-                label.className = 'pose-label';
-                label.textContent = pose.name;
-                
-                thumbnail.appendChild(img);
-                poseItem.appendChild(thumbnail);
-                poseItem.appendChild(label);
-                container.appendChild(poseItem);
+                container.appendChild(messageDiv);
             });
+
+            // 自動滾動到底部
+            container.scrollTop = container.scrollHeight;
         }
 
-        // 切換立繪姿勢（資訊不變）
-        function switchPose(poseId) {
-            const pose = characterPoses.find(p => p.id === poseId);
-            if (!pose) return;
-
-            // 立繪淡出效果
-            const mainImage = document.getElementById('mainCharacterImage');
-            mainImage.classList.add('fade-out');
-
-            // 更新活動按鈕
-            document.querySelectorAll('.pose-thumbnail').forEach((thumb, index) => {
-                thumb.classList.toggle('active', characterPoses[index].id === poseId);
-            });
-
-            // 等待淡出動畫完成後更新立繪
-            setTimeout(() => {
-                mainImage.src = pose.fullImage;
-                mainImage.alt = pose.label;
-                mainImage.classList.remove('fade-out');
-            }, 300);
-        }
+        // 搜尋功能
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            renderSessionList(e.target.value);
+        });
 
         // 初始化
-        generatePoseButtons();
+        renderSessionList();
+        loadSession(1); // 預設載入第一個記錄
     </script>
 </body>
 </html>
