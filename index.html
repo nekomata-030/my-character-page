@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRPG 聊天記錄備份</title>
+    <title>CCFOLIA Log Editor - 聊天記錄美化編輯器</title>
     <style>
         * {
             margin: 0;
@@ -13,139 +13,400 @@
 
         body {
             font-family: 'Microsoft JhengHei', 'Segoe UI', Arial, sans-serif;
-            background: #f5f5f5;
-            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
         }
 
-        /* 頂部導航欄 */
-        .navbar {
-            background: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            padding: 1rem 2rem;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .navbar-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #5865F2;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: #666;
-            transition: color 0.3s;
-        }
-
-        .nav-links a:hover {
-            color: #5865F2;
-        }
-
-        /* 主要容器 */
         .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1rem;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
-        /* 側邊欄 */
-        .layout {
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 2rem;
-        }
-
-        .sidebar {
+        /* 標題區 */
+        .header {
             background: white;
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            height: fit-content;
-            position: sticky;
-            top: 80px;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            margin-bottom: 2rem;
+            text-align: center;
         }
 
-        .sidebar h3 {
-            margin-bottom: 1rem;
-            color: #5865F2;
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #666;
             font-size: 1.1rem;
         }
 
-        .session-list {
-            list-style: none;
+        /* 上傳區域 */
+        .upload-section {
+            background: white;
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            margin-bottom: 2rem;
+            text-align: center;
         }
 
-        .session-item {
-            padding: 0.75rem;
-            margin-bottom: 0.5rem;
-            border-radius: 6px;
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 12px;
+            padding: 3rem;
             cursor: pointer;
             transition: all 0.3s;
-            border-left: 3px solid transparent;
+            background: #f8f9ff;
         }
 
-        .session-item:hover {
-            background: #f0f0f0;
-        }
-
-        .session-item.active {
+        .upload-area:hover {
             background: #e8ecff;
-            border-left-color: #5865F2;
+            border-color: #5865F2;
         }
 
-        .session-date {
-            font-size: 0.85rem;
+        .upload-area.dragover {
+            background: #d8dcff;
+            border-color: #5865F2;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .upload-hint {
+            font-size: 0.9rem;
             color: #999;
-            margin-top: 0.25rem;
         }
 
-        /* 聊天記錄區 */
-        .chat-container {
-            background: white;
+        #fileInput {
+            display: none;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        /* 編輯器主體 */
+        .editor-container {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
             overflow: hidden;
         }
 
-        .chat-header {
-            background: linear-gradient(135deg, #5865F2 0%, #7289DA 100%);
-            color: white;
-            padding: 1.5rem;
+        .editor-container.active {
+            display: block;
         }
 
-        .chat-header h2 {
-            font-size: 1.5rem;
+        /* 工具列 */
+        .toolbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .toolbar-left, .toolbar-right {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .toolbar .btn {
+            padding: 0.5rem 1.5rem;
+        }
+
+        .session-title-input {
+            padding: 0.5rem 1rem;
+            border: 2px solid white;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            width: 300px;
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        /* 編輯區域 */
+        .editor-layout {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            min-height: 600px;
+        }
+
+        /* 訊息列表 */
+        .messages-panel {
+            padding: 2rem;
+            overflow-y: auto;
+            max-height: 70vh;
+            background: #f8f9fa;
+        }
+
+        .message-item {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .message-item:hover {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .message-user {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .message-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .message-time {
+            font-size: 0.85rem;
+            color: #999;
+        }
+
+        .message-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .message-controls button {
+            padding: 0.25rem 0.75rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .btn-edit {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #45a049;
+        }
+
+        .btn-delete {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #da190b;
+        }
+
+        .message-content {
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .message-content textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            line-height: 1.6;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .message-content textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .dice-result {
+            background: #fff4e6;
+            border-left: 4px solid #ff9800;
+            padding: 0.75rem;
+            margin-top: 0.75rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+        }
+
+        /* 系統訊息 */
+        .message-item.system {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .message-item.system .message-content {
+            color: #666;
+            font-weight: 500;
+        }
+
+        /* 設定面板 */
+        .settings-panel {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-left: 2px solid #e0e0e0;
+            overflow-y: auto;
+        }
+
+        .settings-panel h3 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+
+        .setting-group {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .setting-group h4 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .setting-item {
+            margin-bottom: 1rem;
+        }
+
+        .setting-item label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .setting-item select,
+        .setting-item input[type="color"],
+        .setting-item input[type="text"] {
+            width: 100%;
+            padding: 0.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .setting-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        /* 預覽模式 */
+        .preview-container {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .preview-container.active {
+            display: block;
+        }
+
+        .preview-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .preview-header h2 {
+            font-size: 2rem;
             margin-bottom: 0.5rem;
         }
 
-        .chat-meta {
-            font-size: 0.9rem;
+        .preview-meta {
+            font-size: 1rem;
             opacity: 0.9;
         }
 
-        .chat-messages {
+        .preview-messages {
             padding: 2rem;
             max-height: 70vh;
             overflow-y: auto;
         }
 
-        /* 訊息樣式 */
-        .message {
+        .preview-message {
             display: flex;
             gap: 1rem;
             margin-bottom: 1.5rem;
@@ -157,118 +418,58 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
+        .preview-message.system {
             justify-content: center;
-            color: white;
-            font-weight: bold;
-            flex-shrink: 0;
         }
 
-        .message-content {
-            flex: 1;
+        .preview-message.system .preview-content {
+            background: #f0f0f0;
+            padding: 0.75rem 1.5rem;
+            border-radius: 20px;
+            color: #666;
         }
 
-        .message-header {
+        .stats {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .stats h4 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .stat-item {
             display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.5rem;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f0f0f0;
         }
 
-        .username {
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: #666;
+        }
+
+        .stat-value {
             font-weight: bold;
             color: #333;
         }
 
-        .timestamp {
-            font-size: 0.75rem;
-            color: #999;
-        }
-
-        .message-text {
-            line-height: 1.6;
-            color: #555;
-        }
-
-        /* 系統訊息 */
-        .message.system {
-            justify-content: center;
-        }
-
-        .message.system .message-content {
-            background: #f0f0f0;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            text-align: center;
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        /* 骰子訊息 */
-        .dice-result {
-            background: #fff4e6;
-            border-left: 4px solid #ff9800;
-            padding: 0.75rem;
-            margin-top: 0.5rem;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-        }
-
-        /* 角色卡片 */
-        .character-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-top: 0.5rem;
-        }
-
-        .character-name {
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-
-        .character-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.5rem;
-            font-size: 0.85rem;
-        }
-
-        /* 搜尋框 */
-        .search-box {
-            margin-bottom: 1.5rem;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: #5865F2;
-        }
-
-        /* 響應式設計 */
-        @media (max-width: 968px) {
-            .layout {
+        /* 響應式 */
+        @media (max-width: 1024px) {
+            .editor-layout {
                 grid-template-columns: 1fr;
             }
 
-            .sidebar {
-                position: static;
+            .settings-panel {
+                border-left: none;
+                border-top: 2px solid #e0e0e0;
             }
         }
 
@@ -292,240 +493,633 @@
     </style>
 </head>
 <body>
-    <!-- 導航欄 -->
-    <nav class="navbar">
-        <div class="navbar-content">
-            <div class="logo">🎲 TRPG Log Backup</div>
-            <div class="nav-links">
-                <a href="#home">首頁</a>
-                <a href="#sessions">記錄列表</a>
-                <a href="#about">關於</a>
+    <div class="container">
+        <!-- 標題 -->
+        <div class="header">
+            <h1>🎲 CCFOLIA Log Editor</h1>
+            <p>上傳 CCFOLIA HTML 檔案，編輯並美化你的 TRPG 聊天記錄</p>
+        </div>
+
+        <!-- 上傳區域 -->
+        <div class="upload-section" id="uploadSection">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">拖曳 HTML 檔案到這裡，或點擊選擇檔案</div>
+                <div class="upload-hint">支援 CCFOLIA 匯出的 .html 檔案</div>
+                <input type="file" id="fileInput" accept=".html,.htm" multiple>
+            </div>
+            <div style="margin-top: 1.5rem;">
+                <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                    選擇檔案
+                </button>
             </div>
         </div>
-    </nav>
 
-    <!-- 主要內容 -->
-    <div class="container">
-        <div class="layout">
-            <!-- 側邊欄 -->
-            <aside class="sidebar">
-                <h3>📚 遊戲記錄</h3>
-                <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="搜尋記錄...">
+        <!-- 編輯器 -->
+        <div class="editor-container" id="editorContainer">
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <input type="text" class="session-title-input" id="sessionTitle" placeholder="輸入記錄標題...">
                 </div>
-                <ul class="session-list" id="sessionList">
-                    <!-- 由 JavaScript 動態生成 -->
-                </ul>
-            </aside>
+                <div class="toolbar-right">
+                    <button class="btn btn-secondary" onclick="togglePreview()">👁️ 預覽</button>
+                    <button class="btn btn-primary" onclick="exportHTML()">💾 匯出 HTML</button>
+                    <button class="btn btn-secondary" onclick="resetEditor()">🔄 重新上傳</button>
+                </div>
+            </div>
 
-            <!-- 聊天記錄 -->
-            <main class="chat-container">
-                <div class="chat-header">
-                    <h2 id="sessionTitle">載入中...</h2>
-                    <div class="chat-meta" id="sessionMeta">請選擇一個遊戲記錄</div>
+            <div class="editor-layout">
+                <div class="messages-panel" id="messagesPanel">
+                    <div class="loading">載入中</div>
                 </div>
-                <div class="chat-messages" id="chatMessages">
-                    <div class="loading">載入聊天記錄中</div>
+
+                <div class="settings-panel">
+                    <h3>⚙️ 美化設定</h3>
+
+                    <div class="stats" id="statsPanel">
+                        <h4>📊 記錄統計</h4>
+                        <div class="stat-item">
+                            <span class="stat-label">訊息總數</span>
+                            <span class="stat-value" id="totalMessages">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">參與者</span>
+                            <span class="stat-value" id="totalUsers">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">骰子次數</span>
+                            <span class="stat-value" id="totalDice">0</span>
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
+                        <h4>🎨 外觀設定</h4>
+                        <div class="setting-item">
+                            <label>主題顏色</label>
+                            <select id="themeColor" onchange="updateTheme()">
+                                <option value="purple">紫色（預設）</option>
+                                <option value="blue">藍色</option>
+                                <option value="green">綠色</option>
+                                <option value="red">紅色</option>
+                                <option value="dark">暗色</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <label>字體大小</label>
+                            <select id="fontSize" onchange="updateFontSize()">
+                                <option value="small">小</option>
+                                <option value="medium" selected>中</option>
+                                <option value="large">大</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
+                        <h4>📝 顯示選項</h4>
+                        <div class="setting-item">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="showTimestamp" checked onchange="updateDisplay()">
+                                顯示時間戳記
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="showAvatar" checked onchange="updateDisplay()">
+                                顯示頭像
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="showDice" checked onchange="updateDisplay()">
+                                顯示骰子結果
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="showSystem" checked onchange="updateDisplay()">
+                                顯示系統訊息
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
+                        <h4>🔧 進階功能</h4>
+                        <button class="btn btn-secondary" style="width: 100%; margin-bottom: 0.5rem;" onclick="sortByTime()">
+                            ⏱️ 按時間排序
+                        </button>
+                        <button class="btn btn-secondary" style="width: 100%; margin-bottom: 0.5rem;" onclick="removeEmptyMessages()">
+                            🗑️ 移除空白訊息
+                        </button>
+                        <button class="btn btn-secondary" style="width: 100%;" onclick="addNewMessage()">
+                            ➕ 新增訊息
+                        </button>
+                    </div>
                 </div>
-            </main>
+            </div>
+        </div>
+
+        <!-- 預覽 -->
+        <div class="preview-container" id="previewContainer">
+            <div class="preview-header">
+                <h2 id="previewTitle">記錄標題</h2>
+                <div class="preview-meta" id="previewMeta">載入中...</div>
+            </div>
+            <div class="preview-messages" id="previewMessages">
+                <div class="loading">生成預覽中</div>
+            </div>
+            <div style="text-align: center; padding: 2rem;">
+                <button class="btn btn-primary" onclick="togglePreview()">返回編輯</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // 範例資料：遊戲記錄列表
-        const sessions = [
-            {
-                id: 1,
-                title: '克蘇魯的呼喚 - 第一章',
-                date: '2024-01-15',
-                participants: ['調查員A', '調查員B', '守密人'],
-                messages: [
-                    {
-                        type: 'system',
-                        text: '遊戲開始 - 克蘇魯的呼喚'
-                    },
-                    {
-                        type: 'message',
-                        user: '守密人',
-                        avatar: 'GM',
-                        time: '20:00',
-                        text: '夜幕降臨，你們來到了這座古老的宅邸前。陰森的氣息從破舊的大門中滲透出來...'
-                    },
-                    {
-                        type: 'message',
-                        user: '調查員A',
-                        avatar: 'A',
-                        time: '20:01',
-                        text: '我想要偵查這個大門，看看有沒有什麼異常。',
-                        dice: '偵查檢定：1D100 = 45 / 65 → 成功'
-                    },
-                    {
-                        type: 'message',
-                        user: '守密人',
-                        avatar: 'GM',
-                        time: '20:02',
-                        text: '你注意到門把上有新鮮的抓痕，似乎有什麼東西剛剛從這裡經過...'
-                    },
-                    {
-                        type: 'message',
-                        user: '調查員B',
-                        avatar: 'B',
-                        time: '20:03',
-                        text: '這看起來不太妙，我們要進去嗎？',
-                        character: {
-                            name: '艾莉絲·懷特',
-                            hp: '12/12',
-                            san: '65/80',
-                            mp: '10/10'
-                        }
-                    }
-                ]
-            },
-            {
-                id: 2,
-                title: '龍與地下城 - 地城探險',
-                date: '2024-02-01',
-                participants: ['戰士', '法師', '盜賊', 'DM'],
-                messages: [
-                    {
-                        type: 'system',
-                        text: '冒險開始 - 失落的地城'
-                    },
-                    {
-                        type: 'message',
-                        user: 'DM',
-                        avatar: 'DM',
-                        time: '19:00',
-                        text: '你們站在地城的入口處，黑暗的走廊向前延伸，不知通往何處...'
-                    },
-                    {
-                        type: 'message',
-                        user: '戰士',
-                        avatar: 'W',
-                        time: '19:01',
-                        text: '我點燃火把，走在最前面。',
-                        dice: '先攻檢定：1D20+2 = 18'
-                    }
-                ]
-            },
-            {
-                id: 3,
-                title: '克蘇魯的呼喚 - 第二章',
-                date: '2024-02-10',
-                participants: ['調查員A', '調查員C', '守密人'],
-                messages: [
-                    {
-                        type: 'system',
-                        text: '第二次聚會 - 深入調查'
-                    },
-                    {
-                        type: 'message',
-                        user: '守密人',
-                        avatar: 'GM',
-                        time: '20:30',
-                        text: '經過上次的事件後，你們決定前往圖書館尋找更多線索...'
-                    }
-                ]
+        let messages = [];
+        let isPreviewMode = false;
+
+        // 拖放上傳
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
             }
-        ];
+        });
 
-        let currentSession = null;
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
 
-        // 生成側邊欄列表
-        function renderSessionList(filter = '') {
-            const sessionList = document.getElementById('sessionList');
-            sessionList.innerHTML = '';
+        // 處理檔案上傳
+        function handleFile(file) {
+            if (!file.name.endsWith('.html') && !file.name.endsWith('.htm')) {
+                alert('請上傳 HTML 檔案');
+                return;
+            }
 
-            const filtered = sessions.filter(s => 
-                s.title.toLowerCase().includes(filter.toLowerCase())
-            );
-
-            filtered.forEach((session, index) => {
-                const li = document.createElement('li');
-                li.className = 'session-item' + (index === 0 && !currentSession ? ' active' : '');
-                li.innerHTML = `
-                    <div>${session.title}</div>
-                    <div class="session-date">${session.date} · ${session.participants.length} 人</div>
-                `;
-                li.onclick = () => loadSession(session.id);
-                sessionList.appendChild(li);
-            });
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                parseHTML(e.target.result);
+            };
+            reader.readAsText(file, 'UTF-8');
         }
 
-        // 載入聊天記錄
-        function loadSession(sessionId) {
-            const session = sessions.find(s => s.id === sessionId);
-            if (!session) return;
+        // 解析 HTML
+        function parseHTML(htmlContent) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlContent, 'text/html');
+            
+            // 嘗試從 HTML 中提取訊息
+            // 這裡需要根據實際的 CCFOLIA HTML 格式調整
+            messages = extractMessages(doc);
+            
+            if (messages.length === 0) {
+                // 如果沒有找到訊息，創建示範資料
+                messages = createSampleData();
+                alert('無法解析檔案格式，已載入示範資料供您測試');
+            }
 
-            currentSession = session;
+            initEditor();
+        }
 
-            // 更新標題
-            document.getElementById('sessionTitle').textContent = session.title;
-            document.getElementById('sessionMeta').textContent = 
-                `${session.date} · 參與者：${session.participants.join(', ')}`;
+        // 從 HTML 提取訊息
+        function extractMessages(doc) {
+            const extracted = [];
+            
+            // 嘗試多種可能的選擇器
+            const selectors = [
+                '.message',
+                '.chat-message',
+                '[data-message]',
+                'p',
+                'div'
+            ];
 
-            // 更新側邊欄選中狀態
-            document.querySelectorAll('.session-item').forEach((item, index) => {
-                item.classList.toggle('active', sessions[index].id === sessionId);
-            });
+            for (const selector of selectors) {
+                const elements = doc.querySelectorAll(selector);
+                if (elements.length > 0) {
+                    elements.forEach((el, index) => {
+                        const text = el.textContent.trim();
+                        if (text) {
+                            extracted.push({
+                                id: Date.now() + index,
+                                type: 'message',
+                                user: extractUser(el) || '未知使用者',
+                                time: extractTime(el) || '00:00',
+                                text: text,
+                                dice: extractDice(text)
+                            });
+                        }
+                    });
+                    break;
+                }
+            }
 
-            // 渲染訊息
-            renderMessages(session.messages);
+            return extracted;
+        }
+
+        function extractUser(element) {
+            // 嘗試提取使用者名稱
+            const userEl = element.querySelector('.user, .name, [data-user]');
+            return userEl ? userEl.textContent.trim() : null;
+        }
+
+        function extractTime(element) {
+            // 嘗試提取時間
+            const timeEl = element.querySelector('.time, .timestamp, [data-time]');
+            if (timeEl) return timeEl.textContent.trim();
+            
+            // 或從文字中提取時間格式 HH:MM
+            const timeMatch = element.textContent.match(/\d{1,2}:\d{2}/);
+            return timeMatch ? timeMatch[0] : null;
+        }
+
+        function extractDice(text) {
+            // 檢測骰子結果
+            const dicePattern = /(\d+d\d+|\d+D\d+|1D100|2D6)/i;
+            if (dicePattern.test(text)) {
+                return text.match(/.*(?:骰子|檢定|判定).*/).join('');
+            }
+            return null;
+        }
+
+        // 創建示範資料
+        function createSampleData() {
+            return [
+                {
+                    id: 1,
+                    type: 'system',
+                    text: '遊戲開始 - 克蘇魯的呼喚'
+                },
+                {
+                    id: 2,
+                    type: 'message',
+                    user: '守密人',
+                    time: '20:00',
+                    text: '夜幕降臨，你們來到了這座古老的宅邸前。陰森的氣息從破舊的大門中滲透出來...',
+                    dice: null
+                },
+                {
+                    id: 3,
+                    type: 'message',
+                    user: '調查員A',
+                    time: '20:01',
+                    text: '我想要偵查這個大門，看看有沒有什麼異常。',
+                    dice: '偵查檢定：1D100 = 45 / 65 → 成功'
+                },
+                {
+                    id: 4,
+                    type: 'message',
+                    user: '守密人',
+                    time: '20:02',
+                    text: '你注意到門把上有新鮮的抓痕，似乎有什麼東西剛剛從這裡經過...',
+                    dice: null
+                },
+                {
+                    id: 5,
+                    type: 'message',
+                    user: '調查員B',
+                    time: '20:03',
+                    text: '這看起來不太妙，我們要進去嗎？',
+                    dice: null
+                }
+            ];
+        }
+
+        // 初始化編輯器
+        function initEditor() {
+            document.getElementById('uploadSection').style.display = 'none';
+            document.getElementById('editorContainer').classList.add('active');
+            document.getElementById('sessionTitle').value = '新的遊戲記錄';
+            
+            renderMessages();
+            updateStats();
         }
 
         // 渲染訊息
-        function renderMessages(messages) {
-            const container = document.getElementById('chatMessages');
-            container.innerHTML = '';
+        function renderMessages() {
+            const panel = document.getElementById('messagesPanel');
+            panel.innerHTML = '';
 
-            messages.forEach(msg => {
-                const messageDiv = document.createElement('div');
-                
+            messages.forEach((msg, index) => {
+                const div = document.createElement('div');
+                div.className = 'message-item' + (msg.type === 'system' ? ' system' : '');
+                div.dataset.id = msg.id;
+
                 if (msg.type === 'system') {
-                    messageDiv.className = 'message system';
-                    messageDiv.innerHTML = `
+                    div.innerHTML = `
                         <div class="message-content">${msg.text}</div>
+                        <div class="message-controls">
+                            <button class="btn-edit" onclick="editMessage(${msg.id})">編輯</button>
+                            <button class="btn-delete" onclick="deleteMessage(${msg.id})">刪除</button>
+                        </div>
                     `;
                 } else {
-                    messageDiv.className = 'message';
-                    messageDiv.innerHTML = `
-                        <div class="avatar">${msg.avatar}</div>
-                        <div class="message-content">
-                            <div class="message-header">
-                                <span class="username">${msg.user}</span>
-                                <span class="timestamp">${msg.time}</span>
+                    div.innerHTML = `
+                        <div class="message-header">
+                            <div class="message-user">
+                                <div class="message-avatar">${msg.user.charAt(0)}</div>
+                                <span class="message-name">${msg.user}</span>
                             </div>
-                            <div class="message-text">${msg.text}</div>
-                            ${msg.dice ? `<div class="dice-result">🎲 ${msg.dice}</div>` : ''}
-                            ${msg.character ? `
-                                <div class="character-card">
-                                    <div class="character-name">${msg.character.name}</div>
-                                    <div class="character-stats">
-                                        <div>HP: ${msg.character.hp}</div>
-                                        <div>SAN: ${msg.character.san}</div>
-                                        <div>MP: ${msg.character.mp}</div>
-                                    </div>
-                                </div>
-                            ` : ''}
+                            <div>
+                                <span class="message-time">${msg.time}</span>
+                            </div>
+                        </div>
+                        <div class="message-content" id="content-${msg.id}">
+                            ${msg.text}
+                        </div>
+                        ${msg.dice ? `<div class="dice-result">🎲 ${msg.dice}</div>` : ''}
+                        <div class="message-controls">
+                            <button class="btn-edit" onclick="editMessage(${msg.id})">編輯</button>
+                            <button class="btn-delete" onclick="deleteMessage(${msg.id})">刪除</button>
                         </div>
                     `;
                 }
-                
-                container.appendChild(messageDiv);
-            });
 
-            // 自動滾動到底部
-            container.scrollTop = container.scrollHeight;
+                panel.appendChild(div);
+            });
         }
 
-        // 搜尋功能
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            renderSessionList(e.target.value);
-        });
+        // 編輯訊息
+        function editMessage(id) {
+            const msg = messages.find(m => m.id === id);
+            if (!msg) return;
 
-        // 初始化
-        renderSessionList();
-        loadSession(1); // 預設載入第一個記錄
+            const contentEl = document.getElementById(`content-${id}`);
+            const currentText = msg.text;
+
+            contentEl.innerHTML = `
+                <textarea id="edit-${id}">${currentText}</textarea>
+                <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem;">
+                    <button class="btn btn-primary" onclick="saveMessage(${id})">儲存</button>
+                    <button class="btn btn-secondary" onclick="cancelEdit(${id})">取消</button>
+                </div>
+            `;
+
+            document.getElementById(`edit-${id}`).focus();
+        }
+
+        // 儲存編輯
+        function saveMessage(id) {
+            const msg = messages.find(m => m.id === id);
+            const newText = document.getElementById(`edit-${id}`).value;
+            
+            msg.text = newText;
+            renderMessages();
+        }
+
+        // 取消編輯
+        function cancelEdit(id) {
+            renderMessages();
+        }
+
+        // 刪除訊息
+        function deleteMessage(id) {
+            if (!confirm('確定要刪除這則訊息嗎？')) return;
+            
+            messages = messages.filter(m => m.id !== id);
+            renderMessages();
+            updateStats();
+        }
+
+        // 新增訊息
+        function addNewMessage() {
+            const newMsg = {
+                id: Date.now(),
+                type: 'message',
+                user: prompt('輸入使用者名稱：') || '新使用者',
+                time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' }),
+                text: prompt('輸入訊息內容：') || '新訊息',
+                dice: null
+            };
+
+            messages.push(newMsg);
+            renderMessages();
+            updateStats();
+        }
+
+        // 更新統計
+        function updateStats() {
+            const users = new Set(messages.filter(m => m.type === 'message').map(m => m.user));
+            const diceCount = messages.filter(m => m.dice).length;
+
+            document.getElementById('totalMessages').textContent = messages.length;
+            document.getElementById('totalUsers').textContent = users.size;
+            document.getElementById('totalDice').textContent = diceCount;
+        }
+
+        // 按時間排序
+        function sortByTime() {
+            messages.sort((a, b) => {
+                if (!a.time || !b.time) return 0;
+                return a.time.localeCompare(b.time);
+            });
+            renderMessages();
+        }
+
+        // 移除空白訊息
+        function removeEmptyMessages() {
+            const before = messages.length;
+            messages = messages.filter(m => m.text && m.text.trim() !== '');
+            const removed = before - messages.length;
+            
+            if (removed > 0) {
+                alert(`已移除 ${removed} 則空白訊息`);
+                renderMessages();
+                updateStats();
+            } else {
+                alert('沒有找到空白訊息');
+            }
+        }
+
+        // 切換預覽
+        function togglePreview() {
+            isPreviewMode = !isPreviewMode;
+
+            if (isPreviewMode) {
+                document.getElementById('editorContainer').classList.remove('active');
+                document.getElementById('previewContainer').classList.add('active');
+                generatePreview();
+            } else {
+                document.getElementById('previewContainer').classList.remove('active');
+                document.getElementById('editorContainer').classList.add('active');
+            }
+        }
+
+        // 生成預覽
+        function generatePreview() {
+            const title = document.getElementById('sessionTitle').value;
+            const users = new Set(messages.filter(m => m.type === 'message').map(m => m.user));
+            
+            document.getElementById('previewTitle').textContent = title;
+            document.getElementById('previewMeta').textContent = 
+                `${messages.length} 則訊息 · 參與者：${Array.from(users).join(', ')}`;
+
+            const container = document.getElementById('previewMessages');
+            container.innerHTML = '';
+
+            messages.forEach(msg => {
+                const div = document.createElement('div');
+                div.className = 'preview-message' + (msg.type === 'system' ? ' system' : '');
+
+                if (msg.type === 'system') {
+                    div.innerHTML = `<div class="preview-content">${msg.text}</div>`;
+                } else {
+                    div.innerHTML = `
+                        <div class="message-avatar">${msg.user.charAt(0)}</div>
+                        <div class="preview-content" style="flex: 1;">
+                            <div class="message-header">
+                                <span class="message-name">${msg.user}</span>
+                                <span class="message-time">${msg.time}</span>
+                            </div>
+                            <div class="message-content">${msg.text}</div>
+                            ${msg.dice ? `<div class="dice-result">🎲 ${msg.dice}</div>` : ''}
+                        </div>
+                    `;
+                }
+
+                container.appendChild(div);
+            });
+        }
+
+        // 匯出 HTML
+        function exportHTML() {
+            const title = document.getElementById('sessionTitle').value;
+            
+            let html = `<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+    <style>
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .message {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .message.system {
+            background: #f0f0f0;
+            text-align: center;
+        }
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            font-weight: bold;
+        }
+        .message-time {
+            color: #999;
+            font-weight: normal;
+        }
+        .dice-result {
+            background: #fff4e6;
+            border-left: 4px solid #ff9800;
+            padding: 0.75rem;
+            margin-top: 0.75rem;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>${title}</h1>
+        <p>${messages.length} 則訊息</p>
+    </div>
+    <div class="messages">
+`;
+
+            messages.forEach(msg => {
+                if (msg.type === 'system') {
+                    html += `        <div class="message system">${msg.text}</div>\n`;
+                } else {
+                    html += `        <div class="message">
+            <div class="message-header">
+                <span>${msg.user}</span>
+                <span class="message-time">${msg.time}</span>
+            </div>
+            <div>${msg.text}</div>
+            ${msg.dice ? `<div class="dice-result">🎲 ${msg.dice}</div>` : ''}
+        </div>\n`;
+                }
+            });
+
+            html += `    </div>
+</body>
+</html>`;
+
+            // 下載檔案
+            const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${title.replace(/\s+/g, '_')}.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            alert('HTML 檔案已匯出！');
+        }
+
+        // 重置編輯器
+        function resetEditor() {
+            if (!confirm('確定要重新上傳嗎？未儲存的變更將會遺失。')) return;
+            
+            messages = [];
+            document.getElementById('editorContainer').classList.remove('active');
+            document.getElementById('uploadSection').style.display = 'block';
+        }
+
+        // 更新主題
+        function updateTheme() {
+            // 可以在這裡實作主題切換
+            alert('主題切換功能開發中');
+        }
+
+        // 更新字體大小
+        function updateFontSize() {
+            // 可以在這裡實作字體大小調整
+            alert('字體大小調整功能開發中');
+        }
+
+        // 更新顯示
+        function updateDisplay() {
+            // 可以在這裡實作顯示選項切換
+            renderMessages();
+        }
     </script>
 </body>
 </html>
